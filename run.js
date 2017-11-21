@@ -8,6 +8,15 @@ dm.initialize().then(start);
 
 function start() {
 
+    var co2 = dm.get("CVW");
+    co2.registerListener(co2Changed);
+
+    /*
+    var temperature = dm.get("zfG");
+    temperature.registerListener(temperatureChanged);
+    */
+
+    /*
     var distanceIRBricklet = dm.get("xue");
     distanceIRBricklet.registerListener(distanceChangedIR);
     distanceIRBricklet.setCallbackInterval(200);
@@ -15,6 +24,16 @@ function start() {
     var distanceUSBricklet = dm.get("zod");
     distanceUSBricklet.registerListener(distanceChangedUS);
     distanceUSBricklet.setCallbackInterval(200);
+
+    */
+}
+
+function co2Changed(co2) {
+    console.log(co2);
+}
+
+function temperatureChanged(t) {
+    console.log(t / 100.0);
 }
 
 function distanceChangedIR(distance) {
