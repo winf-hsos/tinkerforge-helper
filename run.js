@@ -1,6 +1,4 @@
 var { DeviceManager } = require('./lib/DeviceManager.js');
-var moment = require('moment');
-var tinkerforge = require('tinkerforge');
 
 // Get the loggers
 var log4js = require('log4js');
