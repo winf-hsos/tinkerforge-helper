@@ -20,7 +20,7 @@ function start() {
 
     // 216 is Temperature Sensor
     var temperatureSensor = dm.getByDeviceIdentifier(216)
-    temperatureSensor.setCallbackInterval(1000);
+    temperatureSensor.setCallbackInterval(10000);
     temperatureSensor.registerListener(handleTemperatureValue);
 
     led = dm.getByDeviceIdentifier(271);
