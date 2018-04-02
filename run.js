@@ -5,10 +5,10 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 var sensorsLogger = log4js.getLogger('sensors');
 
-var { SQLServerConnector } = require('./lib/sqlConnector/SQLServerConnector.js');
+//var { SQLServerConnector } = require('./lib/sqlConnector/SQLServerConnector.js');
 
 var dm = new DeviceManager();
-var sqlConnector = new SQLServerConnector();
+//var sqlConnector = new SQLServerConnector();
 
 var values = [];
 
@@ -18,6 +18,12 @@ dm.initialize().then(start).catch(handleError);
 
 function start() {
 
+    console.log("Started experiment");
+
+    var rgbButton = dm.get("Dov");
+    rgbButton.setColor(255, 0, 0);
+
+    /*
     var co2Sensor = dm.get("CVW");
     co2Sensor.setCallbackInterval(1000);
     //co2Sensor.registerLogger(sensorsLogger);
@@ -43,7 +49,9 @@ function start() {
     //uvLightSensor.registerLogger(sensorsLogger);
     uvLightSensor.registerListener(newSensorValue);
 
+    */
 
+/*
     sqlConnector.initialize().then(() => {
 
         setInterval(() => {
@@ -53,6 +61,7 @@ function start() {
         }, 5000);
 
     });
+    */
 
     /*
    
