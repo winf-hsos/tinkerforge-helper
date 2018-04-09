@@ -38,12 +38,11 @@ function startSmartCoolingBox() {
 }
 
 function productScanned(valueObject) {
-   
+
     var productColor = valueObject.type;
     var productId = valueObject.id;
 
-    logger.info("Product ID: " + productId);
-    logger.info("Product Type: " + productColor);
+    logger.info("Product ID: " + productId + " | Product Type: " + (productColor == 1 ? "GREEN" : (productColor == 2 ? "BLUE" : "RED")));
 
     // Write the ID to the display
     oledDisplay.write(2, 0, "ID: " + productId + "    ");
@@ -66,7 +65,7 @@ function productScanned(valueObject) {
     nfcReader.setIdle();
 
     setTimeout(() => {
-        rgbButton.white(); 
+        rgbButton.white();
         rgbLight.off();
     }, 5000);
 }
@@ -99,5 +98,5 @@ function buttonChanged(valueObject) {
 }
 
 function handleError(err) {
-    console.error(err);
+    logger.error(err);
 }
