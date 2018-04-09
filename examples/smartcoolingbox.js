@@ -25,25 +25,28 @@ function startSmartCoolingBox() {
     oledDisplay = dm.getByDeviceIdentifier(263);
 
 
-    temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
+    //temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
     //accelerometer.registerListener(accelerationChanged);
     //lightSensor.registerListener(lightChanged);
     //rgbButton.setColor(255, 0, 0);
     rgbButton.registerListener(buttonChanged);
     //rgbLight.setColor(0, 255, 0);
-    oledDisplay.write(0, 0, "Hello");
-    oledDisplay.write(1, 0, "World");
-
+    oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
     nfcReader.scan(productScanned);
 
 }
 
 function productScanned(valueObject) {
-    console.dir(valueObject);
+    var productColor = valueObject.type;
+    var productId = valueObject.id;
 
-    var color = valueObject.type;
+    logger.info("Product ID: " + productId);
+    logger.info("Product Type: " + productColor);
 
-    switch (color) {
+    // Write the ID to the display
+    oledDisplay.write(2, 0, "ID: " + productId + "    ");
+
+    switch (productColor) {
         case '1':
             rgbLight.setColor(0, 255, 0);
             rgbButton.setColor(0, 255, 0);
