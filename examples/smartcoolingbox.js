@@ -63,7 +63,7 @@ function productScanned(valueObject) {
 
     nfcReader.setIdle();
 
-    setTimeout(() => { rgbButton.off(); rgbLight.off(); }, 5000);
+    setTimeout(() => { rgbButton.white(); rgbLight.off(); }, 5000);
 }
 
 function temperatureHumidityChanged(valueObject) {
