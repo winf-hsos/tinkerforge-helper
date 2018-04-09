@@ -5,7 +5,7 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 
 // Get the device manager to access the sensors etc.
-var dm = new DeviceManager();
+var dm = new DeviceManager('192.168.178.27', 4223);
 dm.initialize().then(startSmartCoolingBox).catch(handleError);
 
 // Create global variables to hold on to devices
@@ -30,13 +30,15 @@ function startSmartCoolingBox() {
     //lightSensor.registerListener(lightChanged);
     //rgbButton.setColor(255, 0, 0);
     rgbButton.registerListener(buttonChanged);
+    rgbButton.white();
+
     //rgbLight.setColor(0, 255, 0);
     oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
-    nfcReader.scan(productScanned);
 
 }
 
 function productScanned(valueObject) {
+   
     var productColor = valueObject.type;
     var productId = valueObject.id;
 
@@ -63,7 +65,10 @@ function productScanned(valueObject) {
 
     nfcReader.setIdle();
 
-    setTimeout(() => { rgbButton.off(); rgbLight.off(); }, 5000);
+    setTimeout(() => {
+        rgbButton.white(); 
+        rgbLight.off();
+    }, 5000);
 }
 
 function temperatureHumidityChanged(valueObject) {
@@ -86,9 +91,11 @@ function lightChanged(valueObject) {
 }
 
 function buttonChanged(valueObject) {
-    rgbLight.off();
-    rgbButton.off();
-    nfcReader.scan(productScanned);
+
+    if (valueObject.value == "RELEASED") {
+        rgbButton.blink(255, 255, 255);
+        nfcReader.scan(productScanned);
+    }
 }
 
 function handleError(err) {
