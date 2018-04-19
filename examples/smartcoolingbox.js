@@ -5,7 +5,7 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 
 // Get the device manager to access the sensors etc.
-var dm = new DeviceManager('192.168.178.27', 4223);
+var dm = new DeviceManager('localhost', 4223);
 dm.initialize().then(startSmartCoolingBox).catch(handleError);
 
 // Create global variables to hold on to devices
@@ -34,6 +34,13 @@ function startSmartCoolingBox() {
 
     //rgbLight.setColor(0, 255, 0);
     oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
+    oledDisplay.write(3, 0, "Smart Cooling Box V0.1");
+    oledDisplay.write(6, 0, "Smart Cooling Box V0.1");
+    oledDisplay.write(7, 0, "Smart Cooling Box V0.1");
+
+    setTimeout(() => { oledDisplay.clearLine(3); }, 3000);
+    setTimeout(() => { oledDisplay.clearDisplay(); }, 5000);
+
 
 }
 
