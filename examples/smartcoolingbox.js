@@ -1,4 +1,7 @@
 var { DeviceManager } = require('../lib/DeviceManager.js');
+var { SmartCoolingBoxPubNubWrapper } = require('../lib/pubNubConnector/SmartCoolingBoxPubNubWrapper.js');
+
+
 var log4js = require('log4js');
 
 // Get the loggers
@@ -6,6 +9,8 @@ var logger = log4js.getLogger();
 
 // Get the device manager to access the sensors etc.
 var dm = new DeviceManager('localhost', 4223);
+var pubnub = new SmartCoolingBoxPubNubWrapper('pub-c-63ee24aa-6250-4ad4-adca-415abaf89d25', 'sub-c-efadf9a2-cfcb-11e7-9f31-2ae01b29664a');
+
 dm.initialize().then(startSmartCoolingBox).catch(handleError);
 
 // Create global variables to hold on to devices
@@ -13,7 +18,7 @@ var temperatureHumiditySensor, accelerometer, lightSensor, rgbButton, rgbLight, 
 
 /* This is where the smart cooling box starts */
 function startSmartCoolingBox() {
-    logger.info("Start sensor experiment...");
+    logger.info("Start smart cooling box...");
 
     // Get a hold to the devices and store objects in variables
     temperatureHumiditySensor = dm.getByDeviceIdentifier(283);
@@ -24,7 +29,6 @@ function startSmartCoolingBox() {
     nfcReader = dm.getByDeviceIdentifier(286);
     oledDisplay = dm.getByDeviceIdentifier(263);
 
-
     //temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
     //accelerometer.registerListener(accelerationChanged);
     //lightSensor.registerListener(lightChanged);
@@ -34,13 +38,11 @@ function startSmartCoolingBox() {
 
     //rgbLight.setColor(0, 255, 0);
     oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
-    oledDisplay.write(3, 0, "Smart Cooling Box V0.1");
-    oledDisplay.write(6, 0, "Smart Cooling Box V0.1");
-    oledDisplay.write(7, 0, "Smart Cooling Box V0.1");
-
+   
+    /*
     setTimeout(() => { oledDisplay.clearLine(3); }, 3000);
     setTimeout(() => { oledDisplay.clearDisplay(); }, 5000);
-
+    */
 
 }
 
