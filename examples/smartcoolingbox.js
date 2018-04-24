@@ -17,9 +17,11 @@ Promise.all([
 // Create global variables to hold on to devices
 var temperatureHumiditySensor, accelerometer, lightSensor, rgbButton, rgbLight, nfcReader, oledDisplay;
 
-
 /* The ID of this box, set accordingly */
 var boxId = 5;
+
+/* We keep track of what items are in the box with a Map */
+var items = new Map();
 
 /* This is where the smart cooling box starts */
 function startSmartCoolingBox() {
@@ -35,98 +37,61 @@ function startSmartCoolingBox() {
     oledDisplay = dm.getByDeviceIdentifier(263);
 
     temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
-    //accelerometer.registerListener(accelerationChanged);
-    //lightSensor.registerListener(lightChanged);
-    //rgbButton.setColor(255, 0, 0);
+    accelerometer.registerListener(accelerationChanged);
+    lightSensor.registerListener(lightChanged);
     rgbButton.registerListener(buttonChanged);
-    rgbButton.white();
+
+    //rgbButton.setColor(255, 0, 0);
+    //rgbButton.white();
 
     //rgbLight.setColor(0, 255, 0);
+
+    // nfcReader.scan(productScanned);
+    // nfcReader.setIdle();
+
     oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
 
     /*
-    setTimeout(() => { oledDisplay.clearLine(3); }, 3000);
-    setTimeout(() => { oledDisplay.clearDisplay(); }, 5000);
+    oledDisplay.clearLine(3);
+    oledDisplay.clearDisplay();
     */
 }
 
 function productScanned(valueObject) {
 
+    // Get the informatio about the scanned item
     var productColor = valueObject.type;
     var productId = valueObject.id;
 
-    logger.info("Product ID: " + productId + " | Product Type: " + (productColor == 1 ? "GREEN" : (productColor == 2 ? "BLUE" : "RED")));
-
     // Write the ID to the display
-    oledDisplay.write(2, 0, "ID: " + productId + "    ");
-
-    switch (productColor) {
-        case '1':
-            rgbLight.setColor(0, 255, 0);
-            rgbButton.setColor(0, 255, 0);
-            break;
-        case '2':
-            rgbLight.setColor(0, 0, 255);
-            rgbButton.setColor(0, 0, 255);
-            break;
-        case '3':
-            rgbLight.setColor(255, 0, 0);
-            rgbButton.setColor(255, 0, 0);
-            break;
-    }
-
-    nfcReader.setIdle();
-
-    setTimeout(() => {
-        rgbButton.white();
-        rgbLight.off();
-    }, 5000);
+    var colorText = productColor == 1 ? "GREEN" : productColor == 2 ? "BLUE" : "RED";
+    oledDisplay.write(2, 0, "Scanned item: " + productId + " (" + colorText + ")  ");
 }
 
-var temperatureExceededMode = false;
 function temperatureHumidityChanged(valueObject) {
 
+    /* Take only temperature into account for now */
     if (valueObject.value.type == "temperature") {
-        var temperature = valueObject.value.value / 100;
-      
 
-        if (temperature > 27.00) {
-            if (!temperatureExceededMode) {
-                temperatureExceededMode = true;
-                console.log("Notify temperature exceeded: " + temperature);
-                pubnub.notifyTemperatureExceeded(boxId, temperature);
-            }
-        }
-        else {
-            if (temperatureExceededMode) {
-                temperatureExceededMode = false;
-                console.log("Notify temperature normal again: " + temperature)
-                pubnub.notifyTemperatureNormal(boxId, temperature);
-            }
-        }
     }
 }
 
 function accelerationChanged(valueObject) {
     var thresholdInG = 1200;
     var accelerationInG = Math.max(Math.abs(valueObject.value.x), Math.abs(valueObject.value.y), Math.abs(valueObject.value.z));
-
-    if (accelerationInG > thresholdInG) {
-        console.log("Concussion detected!: " + accelerationInG + " G");
-    }
 }
 
 function lightChanged(valueObject) {
-    console.log(valueObject);
+
 }
 
 function buttonChanged(valueObject) {
 
+    /* Button was pressed */
     if (valueObject.value == "RELEASED") {
-        rgbButton.blink(255, 255, 255);
-        nfcReader.scan(productScanned);
     }
 }
+
 
 function handleError(err) {
     logger.error(err);
