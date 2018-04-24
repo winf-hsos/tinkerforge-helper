@@ -1,7 +1,6 @@
 var { DeviceManager } = require('../lib/DeviceManager.js');
 var { SmartCoolingBoxPubNubWrapper } = require('../lib/pubNubConnector/SmartCoolingBoxPubNubWrapper.js');
 
-
 var log4js = require('log4js');
 
 // Get the loggers
@@ -9,12 +8,18 @@ var logger = log4js.getLogger();
 
 // Get the device manager to access the sensors etc.
 var dm = new DeviceManager('localhost', 4223);
-var pubnub = new SmartCoolingBoxPubNubWrapper('pub-c-63ee24aa-6250-4ad4-adca-415abaf89d25', 'sub-c-efadf9a2-cfcb-11e7-9f31-2ae01b29664a');
+var pubnub = new SmartCoolingBoxPubNubWrapper('pub-c-da11d0a7-08c7-421b-81bb-850fc4e390a1', 'sub-c-efadf9a2-cfcb-11e7-9f31-2ae01b29664a');
 
-dm.initialize().then(startSmartCoolingBox).catch(handleError);
+Promise.all([
+    dm.initialize(),
+    pubnub.initialize()]).then(startSmartCoolingBox).catch(handleError);
 
 // Create global variables to hold on to devices
 var temperatureHumiditySensor, accelerometer, lightSensor, rgbButton, rgbLight, nfcReader, oledDisplay;
+
+
+/* The ID of this box, set accordingly */
+var boxId = 5;
 
 /* This is where the smart cooling box starts */
 function startSmartCoolingBox() {
@@ -29,7 +34,7 @@ function startSmartCoolingBox() {
     nfcReader = dm.getByDeviceIdentifier(286);
     oledDisplay = dm.getByDeviceIdentifier(263);
 
-    //temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
+    temperatureHumiditySensor.registerListener(temperatureHumidityChanged);
     //accelerometer.registerListener(accelerationChanged);
     //lightSensor.registerListener(lightChanged);
     //rgbButton.setColor(255, 0, 0);
@@ -38,12 +43,11 @@ function startSmartCoolingBox() {
 
     //rgbLight.setColor(0, 255, 0);
     oledDisplay.write(0, 0, "Smart Cooling Box V0.1");
-   
+
     /*
     setTimeout(() => { oledDisplay.clearLine(3); }, 3000);
     setTimeout(() => { oledDisplay.clearDisplay(); }, 5000);
     */
-
 }
 
 function productScanned(valueObject) {
@@ -79,9 +83,27 @@ function productScanned(valueObject) {
     }, 5000);
 }
 
+var temperatureExceededMode = false;
 function temperatureHumidityChanged(valueObject) {
-    if (valueObject.value.type == "humidity") {
-        console.log(valueObject);
+
+    if (valueObject.value.type == "temperature") {
+        var temperature = valueObject.value.value / 100;
+      
+
+        if (temperature > 27.00) {
+            if (!temperatureExceededMode) {
+                temperatureExceededMode = true;
+                console.log("Notify temperature exceeded: " + temperature);
+                pubnub.notifyTemperatureExceeded(boxId, temperature);
+            }
+        }
+        else {
+            if (temperatureExceededMode) {
+                temperatureExceededMode = false;
+                console.log("Notify temperature normal again: " + temperature)
+                pubnub.notifyTemperatureNormal(boxId, temperature);
+            }
+        }
     }
 }
 
