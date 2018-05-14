@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "aerial-anagram-202013",
+  "private_key_id": "a8d2af102a20338c3890415771c32e588a0a837e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC6x/4VQdYAbhyI\nxvTQ/CQEANPNNn4GnyCw++irPLfWmyp/1EPW+0cvFZBf7af1Ebsv82LdpEm9z2AT\nZT0pd7YPNPnb9Fea1+dwg9aSjTzbhe9upAlAYmy2aVQTbQ5302alMPFqy84leS1S\nxBkGwwG4LuQAnWuAd/NFu3HdzMpYeZd045ltik9Llk8fLD0Mc9jlyuATUiiEIWD9\nFEXEs9dbsyxr+HHdpVFZ2NNNErL2C6QpeVjACUTrZGmmaM7bvTALT0hBMrtmZjjz\ndfP9VP3Rg6QmMZApcmjBD6P8xlBKkqu/ho7pGAg81ynYXoiP4mgMBZZem6xuuuAJ\nLd5zwjjjAgMBAAECggEARBV8f6Ek8bkxe4YSXU9bjX4Dto0DeURt9TWOBUU3uemL\nn1bvd6DWvMn+e4k0rPdOpVbxlds56g96dPd1SPVTDs3/ufaiLFZBDdlw0LDdGyQC\nN/FhUe/OsttIA2DAYltT0ik6BvTNawl1xPKoMLfKm6m0AKlhM04GBkgiZHgu1fq0\nPrVMFABroA2yguw2VmMt+YYXc6whIaau+bcikBVwYoaZjczgcywvKRMl7uS90lqe\ngKWgfm7WZOMyN45Ioe+zDPddbkCl80q9jPmskPmoSHyohMWVn9DNlpaW2Ugjim0m\ndMlldsMZqi/4G/OkANFZ2xQjL3P31XLkzSWykf7nWQKBgQDyez78DZjv89TJKxeO\ncMO/6vIwSk8DRJePKTf65VzMsEIJ40eU6aGB8SXhGFmqOvMzkwj95RhAwd5a9PMG\nNarXiL9rED73qWg3xwpQMQiZ7LcJcu95nhj7uLzcdQwRO0+x8Is3k8soqCEbaIDA\nM5FDwGeQuDm/YtujRZri/bOHJwKBgQDFMceQCmPN6GOyVVre3hy8Hb+cZu5ea/AL\ntl5HAGOK4QixlKKFqIMjCSDcxeYnCQpkcXzprjVYRCAwE7C+Ecbkld4/veQmHSb5\ncz3as3dsf1EyNl6/7nWKfLtaus0b2cp72cOPfAtL0ow3kRQgCS/3w8zDcFFH1G3e\nIOV9Ut715QKBgA15n+Rt9QPQrxCG3oZB6f7uVYstdfqegzWner7spB2T5feas82o\nthr8hbhenA0DvaQuFZ/WbWSb4Xl4h1DfBqF3rfuLKZSly27eFsqiDvJO31UdGAXQ\nLV8/wu8VahhDDYi772ClS/L0dPKK+iy0MOxs8tRuCHeETORj59mZc7KdAoGAdrgh\njXaz36OpYhRBQSw34ImIcoEFwZL6UhLZb6WsSFBzC3aQ4icxzEYSotgCWD35I7+v\nlIBtXVamiktQfR32wGf6BiYs1UV30XawJpslqwx7td9F7AeEfHvb0CPmmH3mienw\n8tGbe2qnQEz38NGXL3OSM5fLV5NtEe58O5dI5IECgYBIuU9ro1B6v8w6P1eLrojE\ntuPru9E2InAg9JC0tdjjUc4ezJ1sbliQ24bBigszSQVMGJE0rYBSc+gySblymGYy\nmPlh0RYFLoQed3dR8tQDUGTfbo76hY8wpdLkmCfOgl5TiHBK9+AfOR4Il9MbjBwq\nMBdI45nqoNSUVbjoOPgKjQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "text-to-speech-service-account@aerial-anagram-202013.iam.gserviceaccount.com",
+  "client_id": "101125323259167685479",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/text-to-speech-service-account%40aerial-anagram-202013.iam.gserviceaccount.com"
+}
