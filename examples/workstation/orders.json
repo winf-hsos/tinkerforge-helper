@@ -1,0 +1,19 @@
+{
+    "orders": [
+        {
+            "id": 9,
+            "type": 2,
+            "quantity": 20
+        },
+        {
+            "id": 1,
+            "type": 1,
+            "quantity": 10
+        },
+        {
+            "id": 4,
+            "type": 3,
+            "quantity" : 30
+        }
+    ]
+}
