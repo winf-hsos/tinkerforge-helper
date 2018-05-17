@@ -10,6 +10,10 @@ class Queue {
         this.workstation = workstation;
     }
 
+    getOrder() {
+        return this.queue;
+    }
+
     add(order) {
         if (!this.contains(order) && this.queue.length < this.maxSize) {
 
@@ -111,7 +115,6 @@ class Queue {
             return first;
         }
         else return null;
-
     }
 
     getSize() {

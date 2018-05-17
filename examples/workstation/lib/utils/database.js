@@ -98,7 +98,7 @@ function _deleteEventsForGame(gameId) {
 
 
 function _deleteFieldsForGame(gameId) {
-    return firestore.collection("games").doc(gameId.toString()).update({
+    return firestore.collection("games").doc(gameId.toString()).set({
         started: null,
         id: null
     })

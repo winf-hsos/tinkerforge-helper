@@ -18,6 +18,17 @@ class Order {
         else return false;
     }
 
+    isOnDifferentWorkstation() {
+        if (typeof this.location !== "undefined") {
+            var currentWorkstation = this.location.split('@')[1];
+
+            if (currentWorkstation !== context.workstation.id.toString())
+                return true;
+            else return false;
+        }
+        else return false;
+    }
+
     getOnlineInfo(gameId) {
         var _this = this;
 

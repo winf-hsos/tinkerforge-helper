@@ -100,7 +100,11 @@ class WorkstationCore {
 
             var repairPct = Math.min(1, (1 - (_this._setupDurationLeft / _this._setupDuration))) * 100;
 
-            context.log("Repaired: " + repairPct.toFixed(1) + "%");
+            if (typeof wsImplementation.repairPctChanged != "undefined") {
+                wsImplementation.repairPctChanged(repairPct);
+            }
+            else
+                context.warn("The workstation made progress repairing. If you want to do something with this event, implement >repairPctChanged(pct)< to make me smarter!");
 
             db.updateWorkstationRepairPct(repairPct);
 
@@ -109,8 +113,6 @@ class WorkstationCore {
                 _this._finishedRepair();
             }
         }, 1000);
-
-
     }
 
     startProcessing() {
@@ -139,8 +141,16 @@ class WorkstationCore {
 
         // Check if setup is necessary
         if (nextOrder.type.toString() !== this.setup.toString()) {
-            context.log("Current setup >" + this.setup + "< does not match the next order's required setup >" + nextOrder.type + "<. Must modify setup first!");
-            this.setupTo(nextOrder.type);
+
+            if (typeof wsImplementation.setupRequired != "undefined") {
+                wsImplementation.setupRequired(this.setup, nextOrder);
+            }
+            else {
+                context.warn("The workstation must (and will) perform setup to process the next order. If you want to do something different, implement >setupRequired(currentSetup, nextOrder)< to make me smarter!");
+                context.log("Current setup >" + this.setup + "< does not match the next order's required setup >" + nextOrder.type + "<. Must modify setup first!");
+                this.setupTo(nextOrder.type);
+            }
+
             return;
         }
 
@@ -164,7 +174,14 @@ class WorkstationCore {
 
                 var processingPct = Math.min(1, (1 - (_this._stillToProcess / _this.totalToProcess))) * 100;
 
-                context.log("Processed: " + processingPct.toFixed(1) + "%");
+
+                if (typeof wsImplementation.processingPctChanged != "undefined") {
+                    wsImplementation.processingPctChanged(this.orderProcessing, processingPct);
+                }
+                else
+                    context.warn("The workstation made progress processing an order. If you want to do something with this event, implement >processingPctChanged(order, pct)< to make me smarter!");
+
+                //context.log("Processed: " + processingPct.toFixed(1) + "%");
 
                 db.updateOrderProcessingPct(this.orderProcessing, processingPct);
 
@@ -212,7 +229,7 @@ class WorkstationCore {
                 db.addEvent(context.gameId, this.id, '-', "Workstation repaired", context.time)
             ]).then(() => {
                 if (typeof wsImplementation.finishedRepair != "undefined") {
-                    wsImplementation.finishedRepair(this.orderProcessing);
+                    wsImplementation.finishedRepair();
                 }
                 else
                     context.warn("The workstation finished repairing. If you want to do something with this event, implement >finishedRepair()< to make me smarter!");
@@ -264,6 +281,7 @@ class WorkstationCore {
         }
     }
 
+    /* Public funtion to setup the workstation */
     setupTo(toType) {
 
         if (this.status !== "IDLE") {
@@ -294,7 +312,11 @@ class WorkstationCore {
 
             var setupPct = Math.min(1, (1 - (_this._setupDurationLeft / _this._setupDuration))) * 100;
 
-            context.log("Setup: " + setupPct.toFixed(1) + "%");
+            if (typeof wsImplementation.setupPctChanged != "undefined") {
+                wsImplementation.setupPctChanged(setupPct);
+            }
+            else
+                context.warn("The workstation made progress setting up. If you want to do something with this event, implement >setupPctChanged(pct)< to make me smarter!");
 
             db.updateWorkstationSetupPct(setupPct);
 
@@ -329,6 +351,9 @@ class WorkstationCore {
     }
 
     _setStatus(status) {
+
+        var oldStatus = this.status;
+
         // If the status is being initialized, don't sync
         if (typeof this.status == "undefined") {
             this.status = status;
@@ -355,7 +380,6 @@ class WorkstationCore {
             }
             else
                 context.warn("The workstation is now processing. If you want to do something with this event, implement >workstationProcessing()< to make me smarter!");
-
         }
         else if (status == "SETUP") {
             if (typeof wsImplementation.workstationSetup != "undefined") {
@@ -376,6 +400,23 @@ class WorkstationCore {
         }
 
         else if (status == "REPAIR") {
+
+            db.addEvent(context.gameId, this.id, '-', "Workstation repairing", context.time).then(() => {
+                if (typeof wsImplementation.workstationRepairing != "undefined") {
+                    wsImplementation.workstationRepairing();
+                }
+                else
+                    context.warn("The workstation is repairing. If you want to do something with this event, implement >workstationRepairing()< to make me smarter!");
+            });
+        }
+
+        if (this.status !== oldStatus) {
+            if (typeof wsImplementation.statusChanged != "undefined") {
+                wsImplementation.statusChanged(this.status);
+            }
+            else
+                context.warn("The workstation's status changed. If you want to do something with this event, implement >statusChanged(newStatus)< to make me smarter!");
+
         }
     }
 
@@ -465,7 +506,7 @@ class WorkstationCore {
                     _this.button = _this.dm.getByDeviceIdentifier(282);
                     _this.nfc = _this.dm.getByDeviceIdentifier(286);
                     _this.display = _this.dm.getByDeviceIdentifier(263);
-                    _this.poti = _this.dm.getByDeviceIdentifier(213);
+                    _this.poti = _this.dm.getByDeviceIdentifier(267);
 
                     // Set references for context as well
                     context.button = _this.button;
@@ -538,7 +579,15 @@ class WorkstationCore {
                 var order = new Order(valueObj.id, valueObj.type);
 
                 order.getOnlineInfo(context.gameId).then((updatedOrder) => {
-                    wsImplementation.orderScanned(updatedOrder, context);
+
+                    // Check if this order is already on another workstation
+                    if (order.isOnDifferentWorkstation()) {
+                        context.error("Error: The order with ID >" + order.id + "< is already on a different workstation! Discarding scan!");
+                        return;
+                    }
+                    else {
+                        wsImplementation.orderScanned(updatedOrder, context);
+                    }
                 });
             }
             else
@@ -599,7 +648,7 @@ class WorkstationCore {
                 db.updateOrderFinishedWorkstation(order),
                 db.updateOrderStatus(order, null),
                 db.syncProcessedOrdersOnline(this.processedOrders),
-                db.checkIfFinished()    
+                db.checkIfFinished()
             ]).then(() => {
                 if (typeof wsImplementation.orderRemovedFromOutputQueue != "undefined") {
                     wsImplementation.orderRemovedFromOutputQueue(order);

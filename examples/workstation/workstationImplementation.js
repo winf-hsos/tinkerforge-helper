@@ -5,9 +5,9 @@ var context = require('./lib/context.js');
 
 /* Global constants */
 var config = {
-    version: 0.15,
+    version: 0.2,
     gameMaster: true,
-    gameId: 2,
+    gameId: 10,
     workstationId: 'pi10'
 }
 
@@ -17,49 +17,47 @@ var config = {
 var waitForInputQueueConfirmation = false;
 var orderForInputQueue = null;
 
-/* What should happen when the initialization is complete */
 function initComplete() {
-    context.log("Workstation initialization complete");
-    context.button.setColor(255, 255, 255);
-    context.display.write(0, 0, "Workstation V" + context.workstation.version);
+    /* TASK 1
+     * TODO: When the workstation is done initializing, 
+     * light up the button in white color and print the current 
+     * software version on the first line of the display! */
+    context.warn("Workstation is initialized, do something about it (TASK 1)!");
 }
 
+/* What should happen when the workstation is running (game has started)? */
 function workstationRunning() {
-    context.log("Workstation running");
+    context.log("Workstation is now running");
 }
 
 function workstationIdle() {
-    context.log("Workstation is idle");
+    /* TASK 2
+     * TODO: When the workstation becomes idle, check if there is are orders 
+     * in the input queue, and if so, take the first order and put it in the processing queue! */
 
-    if (context.inputQueue.getSize() > 0) {
-        var nextOrder = context.inputQueue.getFirst();
-        context.processingQueue.add(nextOrder);
-    }
-    else {
-        context.log("Nothing more to process");
-    }
+    context.warn("Workstation is idle, do something about it (TASK 2)!");
 }
 
 function workstationFailed() {
-    context.error("Workstation failed - starting repair");
-    context.workstation.repair();
+    /* TASK 7
+     * TODO: When the workstation fails, start repairing it immediately! */
+    context.warn("Workstation is broken, do something about it (TASK 7)!");
+
 }
 
+/* What do we do with a scanned order? */
 function orderScanned(order) {
 
-    // Check if the order was already processed at this workstation
-    if (order.processedOnWorkstation(context.workstation.id)) {
-        context.error("The order was already processed on this workstation. Discarding it.");
-        return;
-    }
+    /* TASK 8
+     * TODO: Make sure that an order can only be processed once on the same workstation! */
+
 
     // Don't do anything if we are currently waiting for a button press
     if (waitForInputQueueConfirmation)
         return;
 
-    //context.log(order);
 
-    // TODO: If item is not anyhwere on the workstation
+    // If item is not yet somewhere on this workstation
     if (!context.inputQueue.contains(order)
         && !context.outputQueue.contains(order)
         && !context.processingQueue.contains(order)) {
@@ -82,16 +80,25 @@ function orderScanned(order) {
         }, 5000);
     }
 
-    // TODO: If item is in output queue, take it out!
-    if (context.outputQueue.contains(order)) {
-        context.outputQueue.remove(order);
-    }
+    /* TASK 4
+     * TODO: When an order was scanned, and it is currently in the workstation’s output queue, 
+       remove it from there to complete it at this workstation! */
 
-    // TODO: If item is processing - error
+
+    /* TASK 5
+     * TODO: When an order was scanned, but the order it is currently processing, output an error!
+       */
+
 }
 
 function orderAddedToInputQueue(order) {
     context.log("New order input queue: " + order.id);
+
+    /* TASK 3 
+     * TODO: When an order is added to the input queue, 
+     * check if the workstation is idle. If there is nothing in 
+     * the processing queue, add the order to the processing queue */
+
 
     // If workstation is idle..
     if (context.status == "IDLE") {
@@ -104,20 +111,62 @@ function orderAddedToInputQueue(order) {
     }
 }
 
+function orderRemovedFromInputQueue(order) {
+    // TODO: Implement logic as and if needed!
+}
+
 function orderAddedToProcessingQueue(order) {
-    context.workstation.startProcessing();
+    /* TASK 6:
+     * TODO: When an order was placed on the processing queue, 
+     * start processing immediately! */
+    context.warn("An order was added to the processing queue, do something! (TASK 6)!");
+}
+
+function orderRemovedFromProcessingQueue(order) {
+    // TODO: Implement logic as and if needed!
 }
 
 function orderAddedToOutputQueue(order) {
-    context.log("An order was added to output queue!")
+    // TODO: Implement logic as and if needed!
+}
+
+function orderRemovedFromOutputQueue(order) {
+    // TODO: Implement logic as and if needed!
 }
 
 function finishedProcessing(order) {
-    context.log("Finished processing!")
+    context.log("Finished processing order >" + order.id + "<");
+}
+
+function finishedRepair() {
+    // TODO: Implement logic as and if needed!
+}
+
+function workstationProcessing() {
+    // TODO: Implement logic as and if needed!
+}
+
+function workstationSetup() {
+    // TODO: Implement logic as and if needed!
+}
+
+function workstationRepairing() {
+    // TODO: Implement logic as and if needed!
+}
+
+function repairPctChanged(pct) {
+    context.log("Repaired: " + pct.toFixed(1) + "%");
+}
+
+function setupPctChanged(pct) {
+    context.log("Setup: " + pct.toFixed(1) + "%");
 }
 
 function finishedSetup() {
-    context.workstation.startProcessing();
+    /* TASK 11
+     * TODO: When setup completes, check if there 
+     * is something on the processing queue, and if yes, start processing! */
+    context.warn("Setup has finished - what should happen now? (TASK 11)");
 }
 
 /* Local helper function */
@@ -127,16 +176,26 @@ function _stopWaitingForInputQueueConfirmation() {
     orderForInputQueue = null;
 }
 
-/* This function is called when the processing
- * is finished */
-function processingComplete(processedItem) {
-    context.log("Processing complete");
+function processingPctChanged(order, pct) {
+    context.log("Processed of order " + order.id + ": " + pct.toFixed(1) + "%");
 }
 
 /* This function is called when the status of 
  * the workstation changes */
-function statusChanged(oldStatus, newStatus) {
+function statusChanged(newStatus) {
     context.log("Status changed: " + newStatus);
+}
+
+function setupChanged(newSetup) {
+    // TODO: Implement logic as and if needed!
+}
+
+function setupRequired(currentSetup, nextOrder) {
+
+    /* TASK 12
+     * TODO: If a setup is required to proceed with processing 
+     * the next order, perform the setup! */
+    context.warn("Setup required from >" + currentSetup + "< to >" + nextOrder.type + "< if we want to proceed! What to do?? (TASK 12");
 }
 
 /* This function is called when the button is
@@ -144,58 +203,66 @@ function statusChanged(oldStatus, newStatus) {
 function buttonChanged(valueObj) {
 
     if (valueObj.value == "RELEASED") {
-
         if (waitForInputQueueConfirmation) {
             context.log("Adding order to input queue: >" + orderForInputQueue.id + "<");
             context.inputQueue.add(orderForInputQueue);
             _stopWaitingForInputQueueConfirmation();
-        } else
-            context.workstation._fail();
+        }
     }
 }
 
 function potiChanged(valueObj) {
-    context.log(valueObj.value);
+    /* TASK 9
+     * TODO: Show the current temperature and 
+     * intensity on the display */
 }
 
 function temperatureChanged(temperature) {
-    context.log("New temperature: " + temperature);
+    /* TASK 9
+    * TODO: Show the current temperature and 
+    * intensity on the display */
 }
 
-
-/* Use this function to test the different devices */
-function test() {
-
-    // With log() you can log something to the console
-    context.log("Log something to the console");
-
-    // Access the different hardware components
-    var button = context.button;
-    var poti = context.poti;
-    var display = context.display;
-    var nfc = context.nfc;
-
-    // Output speech via the speaker
-    //context.say("Initialization complete!");
-}
-
+/* END OF IMPLEMENTATION */
 
 /* Constants */
 exports.config = config;
 
 /* Functions */
-exports.processingComplete = processingComplete;
+
+/* Workstation progress callbacks */
+exports.processingPctChanged = processingPctChanged;
+exports.repairPctChanged = repairPctChanged;
+exports.setupPctChanged = setupPctChanged;
+
+/* Workstation finished callbacks */
 exports.initComplete = initComplete;
+exports.finishedProcessing = finishedProcessing;
+exports.finishedSetup = finishedSetup;
+exports.finishedRepair = finishedRepair;
+
+/* Workstation status callbacks */
 exports.workstationRunning = workstationRunning;
 exports.workstationIdle = workstationIdle;
 exports.workstationFailed = workstationFailed;
+exports.workstationSetup = workstationSetup;
+exports.workstationRepairing = workstationRepairing;
+exports.workstationProcessing = workstationProcessing;
+
 exports.statusChanged = statusChanged;
+exports.setupChanged = setupChanged;
+exports.setupRequired = setupRequired;
+
+/* Workstation Device Callbacks */
 exports.buttonChanged = buttonChanged;
 exports.potiChanged = potiChanged;
 exports.temperatureChanged = temperatureChanged;
+
+/* Order Changes Callbacks */
 exports.orderScanned = orderScanned;
 exports.orderAddedToInputQueue = orderAddedToInputQueue;
 exports.orderAddedToOutputQueue = orderAddedToOutputQueue;
 exports.orderAddedToProcessingQueue = orderAddedToProcessingQueue;
-exports.finishedProcessing = finishedProcessing;
-exports.finishedSetup = finishedSetup;
+exports.orderRemovedFromInputQueue = orderRemovedFromInputQueue;
+exports.orderRemovedFromProcessingQueue = orderRemovedFromProcessingQueue;
+exports.orderRemovedFromOutputQueue = orderRemovedFromOutputQueue;
