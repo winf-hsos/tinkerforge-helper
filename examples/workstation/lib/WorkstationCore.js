@@ -43,6 +43,8 @@ class WorkstationCore {
 
         // Initialize last scanned ID
         this.lastScannedId = -1;
+
+        this._waitForInputQueueConfirmation = false;
     }
 
     init() {
@@ -535,12 +537,22 @@ class WorkstationCore {
         if (!this.running)
             return;
 
-        if (typeof wsImplementation.buttonChanged != "undefined") {
-
-            wsImplementation.buttonChanged(valueObj);
+        if (valueObj.value == "RELEASED") {
+            if (this._waitForInputQueueConfirmation) {
+                context.log("Adding order to input queue: >" + this._orderForInputQueue.id + "<");
+                context.inputQueue.add(this._orderForInputQueue);
+                this._stopWaitingForInputQueueConfirmation();
+            }
         }
-        else
-            context.warn("The button was pressed or released. If you want to do something with this event, implement >buttonChanged(valueObj)< to make me smarter!");
+
+        if (!this._waitForInputQueueConfirmation) {
+
+            if (typeof wsImplementation.buttonChanged != "undefined") {
+                wsImplementation.buttonChanged(valueObj);
+            }
+            else
+                context.warn("The button was pressed or released for no known reason. If you want to do something with this event, implement >buttonChanged(valueObj)< to make me smarter!");
+        }
     }
 
     _potiChanged(valueObj) {
@@ -573,25 +585,19 @@ class WorkstationCore {
             // Create event for online dashboard
             db.addEvent(context.gameId, this.id, valueObj.id, "Scanned order", context.time);
 
-            if (typeof wsImplementation.orderScanned != "undefined") {
+            // Construct item
+            var order = new Order(valueObj.id, valueObj.type);
+            order.getOnlineInfo(context.gameId).then((updatedOrder) => {
 
-                // Construct item
-                var order = new Order(valueObj.id, valueObj.type);
-
-                order.getOnlineInfo(context.gameId).then((updatedOrder) => {
-
-                    // Check if this order is already on another workstation
-                    if (order.isOnDifferentWorkstation()) {
-                        context.error("Error: The order with ID >" + order.id + "< is already on a different workstation! Discarding scan!");
-                        return;
-                    }
-                    else {
-                        wsImplementation.orderScanned(updatedOrder, context);
-                    }
-                });
-            }
-            else
-                context.warn("The NFC reader scanned a new order. If you want to do something with this event, implement >orderScanned(order)< to make me smarter!");
+                // Check if this order is already on another workstation
+                if (order.isOnDifferentWorkstation()) {
+                    context.error("Error: The order with ID >" + order.id + "< is already on a different workstation! Discarding scan!");
+                    return;
+                }
+                else {
+                    this._orderScanned(order);
+                }
+            });
         }
 
         // Remember this ID
@@ -603,6 +609,57 @@ class WorkstationCore {
         // Immediately scan again
         this.nfc.scan(this._scanCompleted.bind(this), this._scanError.bind(this));
     }
+
+    _orderScanned(order) {
+
+        var _this = this;
+
+        // Don't do anything if we are currently waiting for a button press
+        if (this._waitForInputQueueConfirmation)
+            return;
+
+        // If item is not yet somewhere on this workstation
+        // NOTE: This is already correctly implemented - DO NOT CHANGE!
+        if (!this.inputQueue.contains(order)
+            && !this.outputQueue.contains(order)
+            && !this.processingQueue.contains(order)) {
+
+            // Ask the worker to confirm putting order in input queue
+            context.log("Order with ID >" + order.id + "< is not on this workstation yet! Confirm in the next 5 seconds to add the order to the input queue!");
+
+            // Remember the order 
+            this._orderForInputQueue = order;
+
+            // Set the mode to waiting for confirmation
+            this._waitForInputQueueConfirmation = true;
+
+            // Make the button blink
+            context.button.blink(255, 255, 255);
+
+            // Wait only for 5 seconds, if no confirmation after that go back to normal
+            setTimeout(() => {
+                _this._stopWaitingForInputQueueConfirmation();
+            }, 5000);
+
+        }
+        else {
+            // TODO: Move to correct location
+            if (typeof wsImplementation.orderScanned != "undefined") {
+                wsImplementation.orderScanned(order);
+            }
+            else
+                context.warn("The NFC reader scanned an order that is already on this workstation. If you want to do something with this event, implement >orderScanned(order)< to make me smarter!");
+
+        }
+    }
+
+    /* Local helper function */
+    _stopWaitingForInputQueueConfirmation() {
+        this._waitForInputQueueConfirmation = false;
+        context.button.setColor(255, 255, 255);
+        this._orderForInputQueue = null;
+    }
+
 
     _scanError(errorCode, errorMessage) {
         this.nfc.scan(this._scanCompleted.bind(this), this._scanError.bind(this));

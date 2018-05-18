@@ -45,40 +45,8 @@ function workstationFailed() {
 
 }
 
-/* What do we do with a scanned order? */
+/* What do we do with a scanned order that is already on the workstation? */
 function orderScanned(order) {
-
-    /* TASK 8
-     * TODO: Make sure that an order can only be processed once on the same workstation! */
-
-
-    // Don't do anything if we are currently waiting for a button press
-    if (waitForInputQueueConfirmation)
-        return;
-
-
-    // If item is not yet somewhere on this workstation
-    if (!context.inputQueue.contains(order)
-        && !context.outputQueue.contains(order)
-        && !context.processingQueue.contains(order)) {
-
-        // Ask the worker to confirm putting order in input queue
-        context.log("Order with ID >" + order.id + "< is not on this workstation yet! Confirm in the next 5 seconds to add the order to the input queue!");
-
-        // Remember the order 
-        orderForInputQueue = order;
-
-        // Set the mode to waiting for confirmation
-        waitForInputQueueConfirmation = true;
-
-        // Make the button blink
-        context.button.blink(255, 255, 255);
-
-        // Wait only for 5 seconds, if no confirmation after that go back to normal
-        setTimeout(() => {
-            _stopWaitingForInputQueueConfirmation(context);
-        }, 5000);
-    }
 
     /* TASK 4
      * TODO: When an order was scanned, and it is currently in the workstation’s output queue, 
@@ -88,27 +56,20 @@ function orderScanned(order) {
     /* TASK 5
      * TODO: When an order was scanned, but the order it is currently processing, output an error!
        */
-
 }
 
 function orderAddedToInputQueue(order) {
     context.log("New order input queue: " + order.id);
 
+    /* TASK 8
+     * TODO: Make sure that an order can only be processed once on the same workstation! */
+
+
     /* TASK 3 
      * TODO: When an order is added to the input queue, 
      * check if the workstation is idle. If there is nothing in 
      * the processing queue, add the order to the processing queue */
-
-
-    // If workstation is idle..
-    if (context.status == "IDLE") {
-        context.log("Workstation is idle, adding order to processing queue");
-        if (context.processingQueue.getSize() == 0)
-            context.processingQueue.add(order);
-        else {
-            context.log("Cannot add order to processing queue, queue is full. Keeping order in input queue");
-        }
-    }
+    context.warn("A new order was just added to the input queue - what should happen now? (TASK 3)");
 }
 
 function orderRemovedFromInputQueue(order) {
@@ -169,13 +130,6 @@ function finishedSetup() {
     context.warn("Setup has finished - what should happen now? (TASK 11)");
 }
 
-/* Local helper function */
-function _stopWaitingForInputQueueConfirmation() {
-    waitForInputQueueConfirmation = false;
-    context.button.setColor(255, 255, 255);
-    orderForInputQueue = null;
-}
-
 function processingPctChanged(order, pct) {
     context.log("Processed of order " + order.id + ": " + pct.toFixed(1) + "%");
 }
@@ -201,14 +155,7 @@ function setupRequired(currentSetup, nextOrder) {
 /* This function is called when the button is
  * pressed or released */
 function buttonChanged(valueObj) {
-
-    if (valueObj.value == "RELEASED") {
-        if (waitForInputQueueConfirmation) {
-            context.log("Adding order to input queue: >" + orderForInputQueue.id + "<");
-            context.inputQueue.add(orderForInputQueue);
-            _stopWaitingForInputQueueConfirmation();
-        }
-    }
+    // TODO: Implement logic as and if needed!   
 }
 
 function potiChanged(valueObj) {

@@ -75,6 +75,41 @@
             "id": 15,
             "type": 3,
             "quantity": 75
+        },
+
+        {
+            "id": 16,
+            "type": 1,
+            "quantity": 20
+        },
+
+        {
+            "id": 17,
+            "type": 2,
+            "quantity": 25
+        },
+
+        {
+            "id": 18,
+            "type": 3,
+            "quantity": 40
+        },
+
+        {
+            "id": 19,
+            "type": 1,
+            "quantity": 50
+        },
+
+        {
+            "id": 20,
+            "type": 2,
+            "quantity": 15
+        },
+        {
+            "id": 21,
+            "type": 3,
+            "quantity": 60
         }
     ]
 }
