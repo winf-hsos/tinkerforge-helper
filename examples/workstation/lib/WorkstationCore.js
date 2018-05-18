@@ -560,6 +560,10 @@ class WorkstationCore {
         this.intensity = valueObj.value;
         context.intensity = this.intensity;
 
+        if (!this.running)
+            return;
+
+        
         db.syncWorkstationOnline().then(() => {
             if (typeof wsImplementation.potiChanged != "undefined") {
                 wsImplementation.potiChanged(valueObj);
