@@ -556,8 +556,6 @@ class WorkstationCore {
     }
 
     _potiChanged(valueObj) {
-        if (!this.running)
-            return;
 
         this.intensity = valueObj.value;
         context.intensity = this.intensity;
